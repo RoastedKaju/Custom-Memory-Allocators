@@ -12,5 +12,8 @@ add_executable(${PROJECT_NAME} "src/main.cpp")
 # Add Allocator Libarary sub-directory
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/AllocatorLibrary")
 
+# Add tests
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/tests")
+
 # Link allocator suite library
 target_link_libraries(${PROJECT_NAME} PRIVATE AllocatorLibrary)
