@@ -1,35 +1,93 @@
 #include <iostream>
+#include <algorithm>
 
-#include "linear_allocator.h"
 #include "stack_allocator.h"
+#include "double_stack_allocator.h"
+#include "pool_allocator.h"
+#include "arena_allocator.h"
+
+struct GameObject {
+    double experience_;
+    float hit_points_;
+    float damage_;
+};
 
 int main() {
-  LinearAllocator la(10);
+    printf("'*' means empty space.\n");
+    {
+        printf("====[STACK ALLOCATOR EXAMPLE]====\n");
+        StackAllocator stack_allocator(64);
 
-  std::cout << "Starting Pointer : " << la.start_pointer_ << std::endl;
+        // use the templated version
+        auto *new_location = stack_allocator.allocate<float>();
+        // placement new
+        [[maybe_unused]] const auto *value = new(new_location) float(15.0f);
 
-  std::cout << "First Allocation : " << la.Allocate(3, alignof(int))
-            << std::endl;
-  std::cout << "Second Allocation : " << la.Allocate(3, alignof(int))
-            << std::endl;
-  std::cout << "Third Allocation : " << la.Allocate(3, alignof(int))
-            << std::endl;
+        std::printf("[");
+        for (auto i = 0; i < 64; i++) {
+            if (i < stack_allocator.offset()) {
+                std::printf("x");
+            } else {
+                std::printf("*");
+            }
+        }
+        std::printf("]\n");
+    }
+    printf("====[DOUBLE ENDED ALLOCATOR EXAMPLE]====\n");
+    {
+        DoubleStackAllocator double_ended_stack{64};
 
-  std::cout << "====================== STACK ALLOCATOR ======================"
-            << std::endl;
+        double_ended_stack.allocate_bottom<int>();
+        double_ended_stack.allocate_top<double>();
 
-  StackAllocator sa(1024);
+        // show stack allocator
+        std::printf("[");
+        for (auto i = 0; i < double_ended_stack.bottom_mark(); ++i) {
+            std::printf("x");
+        }
+        for (auto i = double_ended_stack.bottom_mark(); i < double_ended_stack.top_mark(); ++i) {
+            std::printf("*");
+        }
+        for (auto i = double_ended_stack.top_mark(); i < 64; ++i) {
+            std::printf("z");
+        }
+        std::printf("]\n");
+    }
+    printf("====[POOL ALLOCATOR EXAMPLE]====\n");
+    {
+        PoolAllocator<GameObject> pool{64};
 
-  void* a = sa.Allocate(32, 8);
-  void* b = sa.Allocate(64, 16);
+        pool.construct(GameObject{});
+        pool.construct(GameObject{});
 
-  std::cout << sa.AllocatedSize(a) << "\n";  // 32
-  std::cout << sa.AllocatedSize(b) << "\n";  // 64
+        std::printf("[");
+        for (size_t i = 0; i < 64; ++i) {
+            void *slot = static_cast<std::byte *>(pool.get_buffer()) + i * pool.get_element_size();
 
-  sa.Deallocate(b);  // OK
-  sa.Deallocate(a);  // OK
+            // check if slot is in free list
+            if (std::ranges::find(pool.get_free_list_ref(), slot) != pool.get_free_list_ref().end()) {
+                std::printf("*"); // free slot
+            } else {
+                std::printf("x"); // allocated slot
+            }
+        }
+        std::printf("]\n");
+    }
+    printf("====[ARENA ALLOCATOR EXAMPLE]====\n");
+    {
+        Arena allocator{64};
 
-  sa.Reset();  // empties entire allocator
+        allocator.construct<GameObject>(100.0f, 15.0);
 
-  return EXIT_SUCCESS;
+        std::printf("[");
+        for (auto i = 0; i < 64; ++i) {
+            if (i < allocator.get_offset()) {
+                std::printf("x");
+            } else {
+                std::printf("*");
+            }
+        }
+        std::printf("]\n");
+    }
+    return EXIT_SUCCESS;
 }

@@ -1,19 +1,14 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
-# CXX standard
-set(CMAKE_CXX_STANDARD 17)
+project(Allocators LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(AllocatorProject VERSION 1.0)
+add_executable(${PROJECT_NAME})
 
-# Executeable
-add_executable(${PROJECT_NAME} "src/main.cpp")
-
-# Add Allocator Libarary sub-directory
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/AllocatorLibrary")
-
-# Add tests
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/tests")
-
-# Link allocator suite library
-target_link_libraries(${PROJECT_NAME} PRIVATE AllocatorLibrary)
+target_sources(${PROJECT_NAME} PRIVATE
+        "src/main.cpp"
+        "src/stack_allocator.h"
+        "src/double_stack_allocator.h"
+        "src/pool_allocator.h")
