@@ -12,3 +12,5 @@ target_sources(${PROJECT_NAME} PRIVATE
         "src/stack_allocator.h"
         "src/double_stack_allocator.h"
         "src/pool_allocator.h")
+
+add_subdirectory(tests)
