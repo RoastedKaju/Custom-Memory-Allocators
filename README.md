@@ -1,6 +1,5 @@
 # Allocators
 
----
 This project contains header-only implementations of different memory allocators commonly used in real time
 applications, the library provides templated functions for generic type safe allocation and freeing of memory.
 
@@ -43,11 +42,11 @@ free at once.
 - **Languages:** C++ 20
 - **Build System:** CMake
 - **Target Platform:** Windows
-- **Third Party:** Google Test
+- **Third Party:** [Google Test](https://github.com/google/googletest)
 
 ## Getting Started
 
-- Clone this repository recursively `git clone --recursive <repo-url>`
+- Clone this repository `git clone https://github.com/RoastedKaju/Allocators.git`
 - Open the directory using CLion or Visual Studio Code
 - Select Generator and Toolchain
 - Configure
