@@ -1,4 +1,4 @@
-<p style="text-align: center; font-size: 34px;"> Allocators </p>
+# Allocators
 
 ---
 This project contains header-only implementations of different memory allocators commonly used in real time
